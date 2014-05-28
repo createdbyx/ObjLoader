@@ -27,10 +27,43 @@ namespace ObjLoader.Loader.TypeParsers
 
             var face = new Face();
 
-            foreach (var vertexString in vertices)
+            var i = 0;
+            var count = 0;
+            var wrapped = false;
+            while (i <= vertices.Length)
             {
-                var faceVertex = ParseFaceVertex(vertexString);
+                string vertexString;
+                FaceVertex faceVertex;
+                //if (count == 2 && i == vertices.Length)
+                //{
+                //    vertexString = vertices[0];
+                //    faceVertex = this.ParseFaceVertex(vertexString);
+                //    face.AddVertex(faceVertex); 
+                //    break;
+                //}
+
+                if (count == 3)
+                {
+                    _faceGroup.AddFace(face);
+                    face = new Face();
+                    count = 0;
+                    i--;
+                    if (wrapped)
+                    {
+                        return;
+                    }
+                }
+
+                vertexString = vertices[i];
+                faceVertex = this.ParseFaceVertex(vertexString);
                 face.AddVertex(faceVertex);
+                var index = i;
+                i = (i + 1) % vertices.Length;
+                if (i - index < 0)
+                {
+                    wrapped = true;
+                }
+                count++;
             }
 
             _faceGroup.AddFace(face);
@@ -38,18 +71,18 @@ namespace ObjLoader.Loader.TypeParsers
 
         private FaceVertex ParseFaceVertex(string vertexString)
         {
-            var fields = vertexString.Split(new[]{'/'}, StringSplitOptions.None);
+            var fields = vertexString.Split(new[] { '/' }, StringSplitOptions.None);
 
             var vertexIndex = fields[0].ParseInvariantInt();
             var faceVertex = new FaceVertex(vertexIndex, 0, 0);
 
-            if(fields.Length > 1)
+            if (fields.Length > 1)
             {
                 var textureIndex = fields[1].Length == 0 ? 0 : fields[1].ParseInvariantInt();
                 faceVertex.TextureIndex = textureIndex;
             }
 
-            if(fields.Length > 2)
+            if (fields.Length > 2)
             {
                 var normalIndex = fields.Length > 2 && fields[2].Length == 0 ? 0 : fields[2].ParseInvariantInt();
                 faceVertex.NormalIndex = normalIndex;
