@@ -55,9 +55,9 @@ namespace CjClutter.ObjLoader.Viewer
 
         private void ConvertFace()
         {
-            if (_face.Count != 3)
+            if (_face.Count != 3) //< 3 || _face.Count > 4)
             {
-                throw new NotImplementedException("Only triangles are supported");
+                throw new NotImplementedException("Only triangles or quads are supported");
             }
 
             for (int i = 0; i < _face.Count; i++)

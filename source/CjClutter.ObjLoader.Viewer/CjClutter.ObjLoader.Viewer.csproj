@@ -122,7 +122,7 @@
     <Compile Include="Mesh.cs" />
     <Compile Include="MeshViewModel.cs" />
     <Compile Include="NinjectBootstrapper.cs" />
-    <Compile Include="ObjToMehsConverter.cs" />
+    <Compile Include="ObjToMeshConverter.cs" />
     <Compile Include="OpenGlUserControl.xaml.cs">
       <DependentUpon>OpenGlUserControl.xaml</DependentUpon>
     </Compile>
