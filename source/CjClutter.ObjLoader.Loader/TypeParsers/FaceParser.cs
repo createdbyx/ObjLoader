@@ -23,7 +23,17 @@ namespace ObjLoader.Loader.TypeParsers
 
         public override void Parse(string line)
         {
+            if (line == null)
+            {
+                throw new ArgumentNullException("line");
+            }
+
             var vertices = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (vertices.Length < 3)
+            {
+                throw new Exception("Expected 3 or more blocks of vertex data.");
+            }
 
             var face = new Face();
 
@@ -32,30 +42,21 @@ namespace ObjLoader.Loader.TypeParsers
             var wrapped = false;
             while (i <= vertices.Length)
             {
-                string vertexString;
-                FaceVertex faceVertex;
-                //if (count == 2 && i == vertices.Length)
-                //{
-                //    vertexString = vertices[0];
-                //    faceVertex = this.ParseFaceVertex(vertexString);
-                //    face.AddVertex(faceVertex); 
-                //    break;
-                //}
-
                 if (count == 3)
                 {
                     _faceGroup.AddFace(face);
-                    face = new Face();
-                    count = 0;
-                    i--;
                     if (wrapped)
                     {
                         return;
                     }
+
+                    face = new Face();
+                    count = 0;
+                    i--;
                 }
 
-                vertexString = vertices[i];
-                faceVertex = this.ParseFaceVertex(vertexString);
+                var vertexString = vertices[i];
+                var faceVertex = this.ParseFaceVertex(vertexString);
                 face.AddVertex(faceVertex);
                 var index = i;
                 i = (i + 1) % vertices.Length;
@@ -63,7 +64,14 @@ namespace ObjLoader.Loader.TypeParsers
                 {
                     wrapped = true;
                 }
+
                 count++;
+            }
+
+            // ensure at least 3 vertexes per face. 
+            if (face.Count < 3)
+            {
+                throw new Exception("Face entry contains less then 3 blocks of vertex data.");
             }
 
             _faceGroup.AddFace(face);

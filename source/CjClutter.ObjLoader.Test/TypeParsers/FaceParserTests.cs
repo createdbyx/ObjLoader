@@ -7,12 +7,21 @@ using ObjLoader.Loader.TypeParsers;
 
 namespace ObjLoader.Test.TypeParsers
 {
+    using System;
+    using System.Collections.Generic;
+
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    using Assert = NUnit.Framework.Assert;
+
     [TestFixture]
+    [TestClass]
     public class FaceParserTests
     {
         private FaceGroupSpy _faceGroupSpy;
         private FaceParser _faceParser;
 
+        [TestInitialize]
         [SetUp]
         public void SetUp()
         {
@@ -21,6 +30,7 @@ namespace ObjLoader.Test.TypeParsers
             _faceParser = new FaceParser(_faceGroupSpy);
         }
 
+        [TestMethod]
         [Test]
         public void CanParse_returns_true_on_face_line()
         {
@@ -30,6 +40,7 @@ namespace ObjLoader.Test.TypeParsers
             canParse.Should().BeTrue();
         }
 
+        [TestMethod]
         [Test]
         public void CanParse_returns_false_on_non_normal_line()
         {
@@ -39,6 +50,85 @@ namespace ObjLoader.Test.TypeParsers
             canParse.Should().BeFalse();
         }
 
+        [TestMethod]
+        [Test]
+        public void Parses_null_line_correctly()
+        {
+            const string faceLine = null;
+            try
+            {
+                _faceParser.Parse(faceLine);
+                Assert.Fail("Should have thrown a ArgumentNullException exception!");
+            }
+            catch (Exception ex)
+            {
+                Assert.True(ex is ArgumentNullException, "Expected ArgumentNullException to be thrown!");
+            }
+        }
+
+        [TestMethod]
+        [Test]
+        public void Parses_Only_One_Block_Of_Vertex_Data()
+        {
+            const string faceLine = "1";
+            try
+            {
+                _faceParser.Parse(faceLine);
+                Assert.Fail("Should have thrown a exception!");
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+        [TestMethod]
+        [Test]
+        public void Parses_Only_Two_Blocks_Of_Vertex_Data()
+        {
+            const string faceLine = "1 2";
+            try
+            {
+                _faceParser.Parse(faceLine);
+                Assert.Fail("Should have thrown a exception!");
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+        [TestMethod]
+        [Test]
+        public void Parses_Nine_Blocks_Of_Vertex_Data()
+        {
+            const string faceLine = "1 2 3 4 5 6 7 8 9";
+            try
+            {
+                _faceParser.Parse(faceLine);
+                Assert.AreEqual(4, _faceGroupSpy.Faces.Count, "Expected 4 faces!");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Should have not have thrown a exception!");
+            }
+        }
+
+        [TestMethod]
+        [Test]
+        public void Parses_Four_Blocks_Of_Vertex_Data()
+        {
+            const string faceLine = "1 2 3 4";
+            try
+            {
+                _faceParser.Parse(faceLine);
+                Assert.AreEqual(2, _faceGroupSpy.Faces.Count, "Expected 2 faces!");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Should have not have thrown a exception!");
+            }
+        }
+
+        [TestMethod]
         [Test]
         public void Parses_normal_line_correctly_1()
         {
@@ -60,6 +150,7 @@ namespace ObjLoader.Test.TypeParsers
             parsedFace[2].NormalIndex.Should().Be(0);
         }
 
+        [TestMethod]
         [Test]
         public void Parses_normal_line_correctly_2()
         {
@@ -83,6 +174,7 @@ namespace ObjLoader.Test.TypeParsers
             parsedFace[2].NormalIndex.Should().Be(0);
         }
 
+        [TestMethod]
         [Test]
         public void Parses_normal_line_correctly_3()
         {
@@ -106,6 +198,7 @@ namespace ObjLoader.Test.TypeParsers
             parsedFace[2].NormalIndex.Should().Be(5);
         }
 
+        [TestMethod]
         [Test]
         public void Parses_normal_line_correctly_4()
         {
@@ -134,6 +227,13 @@ namespace ObjLoader.Test.TypeParsers
     {
         public Face ParsedFace { get; private set; }
 
+        public List<Face> Faces { get; set; }
+
+        public FaceGroupSpy()
+        {
+            this.Faces=new List<Face>();
+        }                             
+        
         public Face GetFace(int i)
         {
             throw new System.NotImplementedException();
@@ -142,6 +242,7 @@ namespace ObjLoader.Test.TypeParsers
         public void AddFace(Face face)
         {
             ParsedFace = face;
+            this.Faces.Add(face);
         }
     }
 }
