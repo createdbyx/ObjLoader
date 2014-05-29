@@ -11,6 +11,8 @@ using OpenTK;
 
 namespace CjClutter.ObjLoader.Viewer
 {
+    using OpenTK.Input;
+
     public class ShellViewModel : Screen<IShellView>, IShellViewModel 
     {
         private readonly IObjLoaderFactory _objLoaderFactory;
@@ -134,6 +136,14 @@ namespace CjClutter.ObjLoader.Viewer
 
         public void OnMouseMove(Vector2d position)
         {
+        }
+
+        public void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            var vector = Camera.Target - Camera.Position;
+            vector.Normalize();
+            vector *= e.Delta * 0.25f;
+            Camera.Position += vector;
         }
 
         public void OnLeftMouseButtonDown(Vector2d position)
